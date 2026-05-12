@@ -376,7 +376,15 @@ export function MeilensteinDiagnose({ onComplete }: Props) {
     <>
       <div>
         <h2 className="text-xl font-bold text-gray-900">Wie hoch ist das Kulanz-Angebot?</h2>
-        <p className="mt-1 text-sm text-gray-500">Der angebotene Betrag in Euro.</p>
+        <p className="mt-1 text-sm text-gray-500 leading-relaxed">
+          Den Betrag aus dem schriftlichen SENEC-Angebot — genau so wie auf dem Dokument angegeben.
+        </p>
+      </div>
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
+        <p className="text-xs text-amber-800 leading-relaxed">
+          <strong>Mündliches Angebot?</strong> Tragen Sie den genannten Betrag ein und notieren Sie Datum
+          und Gesprächspartner. Eine spätere schriftliche Bestätigung bei SENEC anzufordern ist empfehlenswert.
+        </p>
       </div>
       <div className="space-y-3">
         <div className="relative">

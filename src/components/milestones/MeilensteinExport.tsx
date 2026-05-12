@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 
 interface Props {
   onComplete: () => void
@@ -32,14 +32,41 @@ const SENEC_STEPS = [
   },
 ]
 
-const PROBLEME = [
+const PROBLEME: { q: string; a: ReactNode }[] = [
   {
     q: 'Ich komme nicht in mein SENEC-Konto.',
     a: 'Nutzen Sie die „Passwort vergessen"-Funktion auf mein-senec.de. Falls das Konto nicht existiert: Registrieren Sie sich mit der E-Mail-Adresse aus Ihrem Kaufvertrag.',
   },
   {
     q: 'Ich sehe keinen Export-Button.',
-    a: 'Bei älteren SENEC-Modellen (V2 und früher) ist der Export manchmal nur über den SENEC-Kundendienst erhältlich. Schreiben Sie an service@senec.com — der schriftliche Antrag ist selbst bereits ein Beweisstück.',
+    a: (
+      <div className="space-y-3">
+        <p>
+          Bei älteren SENEC-Modellen (V2 und früher) sind Messdaten manchmal nur per Anfrage
+          beim Kundendienst erhältlich. Das ist Ihr Recht:{' '}
+          <strong>Art. 15 DSGVO verpflichtet SENEC, Ihre personenbezogenen Daten auf Anfrage herauszugeben.</strong>
+        </p>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3.5 space-y-2">
+          <p className="text-xs font-semibold text-gray-700">Vorlage: E-Mail an service@senec.com</p>
+          <p className="text-xs text-gray-500 italic">
+            Betreff: Auskunft und Herausgabe Messdaten gem. Art. 15 DSGVO — Kundennr. [Ihre Nummer]
+          </p>
+          <p className="text-xs text-gray-600 leading-relaxed italic">
+            „Sehr geehrte Damen und Herren, ich bitte um Herausgabe meiner vollständigen Messdaten
+            (Lade- und Entladevorgänge, Energiebilanz) für den Zeitraum [Datum von] bis [Datum bis]
+            in maschinenlesbarem Format (CSV oder Excel). Rechtsgrundlage: Art. 15 DSGVO.
+            Bitte antworten Sie innerhalb von 30 Tagen."
+          </p>
+        </div>
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <p className="text-xs text-amber-800 leading-relaxed">
+            <strong>Keine Antwort nach 30 Tagen?</strong> Wenden Sie sich an die zuständige
+            Datenschutzaufsichtsbehörde (Bayern: BayLDA). Der schriftliche Antrag
+            selbst ist bereits ein Beweisstück — bewahren Sie Datum und Versandnachweis auf.
+          </p>
+        </div>
+      </div>
+    ),
   },
   {
     q: 'Die Datei ist leer oder enthält keine sinnvollen Daten.',
@@ -124,8 +151,8 @@ export function MeilensteinExport({ onComplete }: Props) {
                   </svg>
                 </button>
                 {openFaq === i && (
-                  <div className="px-5 pb-4">
-                    <p className="text-sm text-gray-600 leading-relaxed">{p.a}</p>
+                  <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">
+                    {p.a}
                   </div>
                 )}
               </div>
