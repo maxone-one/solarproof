@@ -14,6 +14,7 @@ import { LandingBanner } from './components/LandingBanner'
 import { LandingOverlay } from './components/LandingOverlay'
 import { DuplicateDialog } from './components/DuplicateDialog'
 import { CreditsOverlay } from './components/CreditsOverlay'
+import { ImpressumOverlay } from './components/ImpressumOverlay'
 import { CostComparison } from './components/CostComparison'
 import { AllMonthsOverview } from './components/AllMonthsOverview'
 import { DataIntegrityPanel } from './components/DataIntegrityPanel'
@@ -34,6 +35,7 @@ function App() {
   const cancelDuplicate = useAppStore((s) => s.cancelDuplicate)
   const [landingOpen, setLandingOpen] = useState(false)
   const [creditsOpen, setCreditsOpen] = useState(false)
+  const [impressumOpen, setImpressumOpen] = useState(false)
 
   const { current, completed, goTo, complete } = useMilestones()
 
@@ -42,7 +44,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onCredits={() => setCreditsOpen(true)} />
+      <Header onCredits={() => setCreditsOpen(true)} onImpressum={() => setImpressumOpen(true)} />
       <Prozessleiste current={current} completed={completed} onGoTo={goTo} />
 
       {/* Milestone 1 — Diagnose */}
@@ -123,6 +125,7 @@ function App() {
       <DayDetailModal />
       <LandingOverlay open={landingOpen} onClose={() => setLandingOpen(false)} />
       <CreditsOverlay open={creditsOpen} onClose={() => setCreditsOpen(false)} />
+      <ImpressumOverlay open={impressumOpen} onClose={() => setImpressumOpen(false)} />
 
       {duplicateInfo && (
         <DuplicateDialog
