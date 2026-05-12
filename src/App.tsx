@@ -116,8 +116,8 @@ function App() {
       {/* Milestone 4 — Anwalt finden (gesperrt) */}
       {current === 4 && <MeilensteinAnwalt onBack={() => goTo(3)} />}
 
-      {/* Milestone 5 — Briefing (gesperrt) */}
-      {current === 5 && <MeilensteinBriefing onBack={() => goTo(4)} />}
+      {/* Milestone 5 — Briefing */}
+      {current === 5 && <MeilensteinBriefing onBack={() => goTo(4)} onComplete={() => complete(5)} />}
 
       {/* Modals — immer im DOM, eigene Sichtbarkeitslogik */}
       <DayDetailModal />

@@ -1,4 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+export const DIAGNOSE_RESULT_KEY = 'sp-diagnose-result'
+
+export interface DiagnoseResult {
+  kaufjahr: string
+  modell: string
+  defektArt: string
+  kommuniziert: string
+  kulanzangebot: string
+  anlagenwert: string
+  verzichtsklausel: string
+  kulanzBetrag: string
+  ampel: 'gruen' | 'gelb' | 'rot' | null
+  coveragePct: number | null
+}
 
 type Step =
   | 'kaufjahr' | 'modell' | 'defektArt' | 'kommuniziert'
@@ -95,6 +110,19 @@ export function MeilensteinDiagnose({ onComplete }: Props) {
       result.push('Tipp: Mangel schriftlich bei SENEC melden — startet Fristen')
     return result
   }
+
+  // Persist result to localStorage so M5 can read it
+  useEffect(() => {
+    if (step !== 'ergebnis') return
+    const aw = parseFloat(answers.anlagenwert)
+    const kb = parseFloat(answers.kulanzBetrag)
+    const pct = !isNaN(aw) && aw > 0 && !isNaN(kb) && kb > 0
+      ? Math.round((kb / aw) * 100)
+      : null
+    const result: DiagnoseResult = { ...answers, ampel: computeAmpel(), coveragePct: pct }
+    try { localStorage.setItem(DIAGNOSE_RESULT_KEY, JSON.stringify(result)) } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step])
 
   // ─── Shared layout ─────────────────────────────────────────────────────────
 
