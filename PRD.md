@@ -422,8 +422,8 @@ Vollständig implementiert (v1.2). Neu in v2.0:
 | Phase | Meilenstein | Aufgabe | Priorität | Status |
 |-------|------------|---------|-----------|--------|
 | 1 | Rahmen | Prozessleiste + Zustandsmaschine | Pflicht | ✅ gebaut |
-| 2 | M1 | Diagnose-Fragekatalog | Pflicht | 🔵 offen |
-| 2 | M1 | Kulanz-Check inkl. OLG-Hamm-Logik | Pflicht | 🔵 offen |
+| 2 | M1 | Diagnose-Fragekatalog | Pflicht | ✅ gebaut |
+| 2 | M1 | Kulanz-Check inkl. OLG-Hamm-Logik | Pflicht | ✅ gebaut |
 | 3 | M2 | SENEC Export-Anleitung mit Screenshots | Pflicht | 🔵 offen |
 | 4 | M3 | Tool in Prozess integriert | Pflicht | ✅ gebaut |
 | 5 | M4 | Anwaltsnetzwerk Datenbank + Matching | Pflicht | 🔵 offen |
