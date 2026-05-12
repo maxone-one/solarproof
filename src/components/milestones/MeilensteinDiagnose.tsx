@@ -54,11 +54,33 @@ const DEFEKTE = [
   { id: 'sonstiges',   label: 'Sonstiges', desc: 'Anderes Problem mit dem Speicher' },
 ]
 
+function loadSaved(): { history: Step[]; answers: Answers } {
+  try {
+    const raw = localStorage.getItem(DIAGNOSE_RESULT_KEY)
+    if (!raw) return { history: ['kaufjahr'], answers: EMPTY }
+    const r = JSON.parse(raw) as DiagnoseResult
+    const a: Answers = {
+      kaufjahr:        r.kaufjahr        ?? '',
+      modell:          r.modell          ?? '',
+      defektArt:       r.defektArt       ?? '',
+      kommuniziert:    r.kommuniziert    ?? '',
+      kulanzangebot:   r.kulanzangebot   ?? '',
+      anlagenwert:     r.anlagenwert     ?? '',
+      verzichtsklausel: r.verzichtsklausel ?? '',
+      kulanzBetrag:    r.kulanzBetrag    ?? '',
+    }
+    return { history: ['kaufjahr', 'ergebnis'], answers: a }
+  } catch {
+    return { history: ['kaufjahr'], answers: EMPTY }
+  }
+}
+
 interface Props { onComplete: () => void }
 
 export function MeilensteinDiagnose({ onComplete }: Props) {
-  const [history, setHistory] = useState<Step[]>(['kaufjahr'])
-  const [answers, setAnswers] = useState<Answers>(EMPTY)
+  const saved = loadSaved()
+  const [history, setHistory] = useState<Step[]>(saved.history)
+  const [answers, setAnswers] = useState<Answers>(saved.answers)
 
   const step = history[history.length - 1]
 
@@ -67,7 +89,11 @@ export function MeilensteinDiagnose({ onComplete }: Props) {
   }
   function push(s: Step) { setHistory(prev => [...prev, s]) }
   function goBack() { setHistory(prev => prev.length > 1 ? prev.slice(0, -1) : prev) }
-  function reset() { setHistory(['kaufjahr']); setAnswers(EMPTY) }
+  function reset() {
+    try { localStorage.removeItem(DIAGNOSE_RESULT_KEY) } catch {}
+    setHistory(['kaufjahr'])
+    setAnswers(EMPTY)
+  }
 
   const questionSteps: Step[] = [
     'kaufjahr', 'modell', 'defektArt', 'kommuniziert', 'kulanzangebot', 'anlagenwert',

@@ -428,7 +428,7 @@ Vollständig implementiert (v1.2). Neu in v2.0:
 | 4 | M3 | Tool in Prozess integriert | Pflicht | ✅ gebaut |
 | 5 | M4 | Anwalt finden — praktischer Guide + Links | Pflicht | ✅ gebaut |
 | 5 | Landing | v2.0 Hero, 5-Schritte, OLG Hamm Sektion | Pflicht | ✅ gebaut |
-| 6 | M5 | Briefing-Generator | Pflicht | 🔵 offen |
+| 6 | M5 | Briefing-Generator | Pflicht | ✅ gebaut |
 | 7 | Vector | Automatisierte Flows | Pflicht | 🔵 offen |
 | 8 | Vector | KI-Einsatz: Kulanz-Check + Premium | Pflicht | 🔵 offen |
 | 9 | Business | Anwaltsnetzwerk-Onboarding | Pflicht | 🔵 offen |

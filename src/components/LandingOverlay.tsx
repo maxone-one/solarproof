@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 
 const STORAGE_KEY = 'pv-analyse-pro-landing-seen'
 
@@ -238,6 +238,38 @@ export function LandingOverlay({ open, onClose }: Props) {
         </div>
       </section>
 
+      {/* ── Ehrliche Einschränkung ── */}
+      <section className="py-16">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="bg-white border-2 border-amber-200 rounded-2xl p-8 text-center">
+            <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">Ehrlich gesagt</h2>
+            <p className="text-gray-600 leading-relaxed max-w-xl mx-auto">
+              SolarProof ersetzt keinen Sachverständigen und keine Rechtsberatung.
+              Es ist dein erster Schritt — nicht dein letzter.
+              Der Nachweis schafft eine Faktenbasis. Was du damit machst, entscheidest du
+              gemeinsam mit einem Anwalt.
+            </p>
+            <p className="mt-4 text-sm text-gray-500">
+              Das Produkt ist quelloffen, kostenlos, und läuft vollständig in deinem Browser.
+              Keine Daten verlassen deinen Rechner.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-3xl mx-auto px-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Häufige Fragen</h2>
+          <FaqList />
+        </div>
+      </section>
+
       {/* ── CTA Footer ── */}
       <section className="py-16 bg-gradient-to-b from-white to-amber-50">
         <div className="max-w-xl mx-auto px-6 text-center">
@@ -287,6 +319,62 @@ function Step({ number, title, description }: { number: string; title: string; d
         <h3 className="font-semibold text-gray-900 mb-1">{title}</h3>
         <p className="text-sm text-gray-600">{description}</p>
       </div>
+    </div>
+  )
+}
+
+const FAQ_ITEMS = [
+  {
+    q: 'Funktioniert SolarProof auch ohne SENEC — z.B. SMA oder Fronius?',
+    a: 'Ja. SolarProof importiert CSV-Dateien von SMA, Fronius, Huawei, Kostal und anderen Herstellern. Die Spalten werden per Mapping zugeordnet. Die juristische Situation (SENEC-spezifische Urteile) gilt aber nur für SENEC-Speicher.',
+  },
+  {
+    q: 'Ist das PDF wirklich "gerichtsverwertbar"?',
+    a: 'Das PDF enthält einen kryptografischen SHA-256-Fingerabdruck der Quelldatei und einen RFC 3161-Zeitstempel einer akkreditierten Stelle. Damit ist nachweisbar, welche Daten zu welchem Zeitpunkt ausgewertet wurden — und dass sie nicht verändert wurden. Ob und wie ein Gericht das gewichtet, entscheidet der Richter. SolarProof ersetzt keine sachverständige Begutachtung.',
+  },
+  {
+    q: 'Werden meine Daten irgendwo hochgeladen?',
+    a: 'Nein. Die gesamte Analyse läuft im Browser auf deinem Gerät. Es wird keine Datei an einen Server gesendet. Einzige Ausnahme: der Zeitstempel-Request sendet den SHA-256-Hash (nicht die Daten selbst) an FreeTSA für die RFC-3161-Signatur.',
+  },
+  {
+    q: 'Welche CSV-Datei brauche ich?',
+    a: 'Den CSV-Export aus deinem SENEC-Kundenportal (mein-senec.de). Wähle den gesamten Schadenszeitraum — mindestens 12 Monate. Schritt 2 der Plattform erklärt dir genau wie.',
+  },
+  {
+    q: 'Muss ich das Kulanz-Angebot vor der Analyse ablehnen?',
+    a: 'Nein. Der Diagnose-Check in Schritt 1 sagt dir, ob du das Angebot annehmen oder ablehnen solltest — das ist der erste Schritt, noch bevor du Daten hochlädst. Unterschreibe nichts, solange du dir nicht sicher bist.',
+  },
+  {
+    q: 'Ich habe keinen Anwalt gefunden — was nun?',
+    a: 'Über anwaltauskunft.de und advocado.de findest du Anwälte nach Postleitzahl und Schwerpunkt. Such nach "Produkthaftung" oder "Kaufrechtsmängel PV-Anlage". Viele Kanzleien bieten eine kostenlose oder günstige Erstberatung an.',
+  },
+]
+
+function FaqList() {
+  const [open, setOpen] = useState<number | null>(null)
+  return (
+    <div className="space-y-3">
+      {FAQ_ITEMS.map((item, i) => (
+        <div key={i} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <button
+            onClick={() => setOpen(open === i ? null : i)}
+            className="w-full text-left px-5 py-4 flex items-start justify-between gap-4"
+          >
+            <span className="text-sm font-semibold text-gray-900 leading-snug">{item.q}</span>
+            <svg
+              className={`w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5 transition-transform ${open === i ? 'rotate-180' : ''}`}
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {open === i && (
+            <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-3">
+              {item.a}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   )
 }
