@@ -100,6 +100,33 @@ export function LandingOverlay({ open, onClose }: Props) {
         </div>
       </section>
 
+      {/* ── Das SENEC-Argument ── */}
+      <section className="py-16">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-3">Das SENEC-Argument</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-4 leading-snug">
+              SENEC hat deine Daten selbst erhoben.<br />
+              SENEC kann sie nicht anfechten.
+            </h2>
+            <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
+              <p>
+                Wenn du deinen Schaden mit eigenen Berechnungen belegen willst, wird SENEC
+                deine Methodik anzweifeln. Das ist ihr Standard-Argument vor Gericht.
+              </p>
+              <p>
+                SolarProof nutzt ausschließlich Daten, die SENEC selbst in seinem eigenen
+                Kundenportal mit seiner eigenen Messtechnik erfasst hat. Jede Messung stammt
+                von SENEC — nicht von dir.
+              </p>
+              <p className="font-semibold text-gray-900">
+                Was SENEC selbst gemessen hat, kann SENEC nicht als unzuverlässig bezeichnen.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Features ── */}
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-6">
