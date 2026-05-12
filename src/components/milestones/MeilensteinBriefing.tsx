@@ -44,7 +44,7 @@ function buildEmail(r: DiagnoseResult | null): string {
     if (r.verzichtsklausel === 'ja')
       kulanzText += ' Das Angebot enthält eine Verzichtsklausel.'
     if (r.coveragePct !== null)
-      kulanzText += ` Das Angebot entspricht ${r.coveragePct}% meines Anlagenwerts.`
+      kulanzText += ` Das Angebot entspricht ${r.coveragePct}% des Speicher-Kaufpreises.`
     if (ampelLabel)
       kulanzText += `\nEinschätzung nach OLG-Hamm-Prüfung: ${ampelLabel}.`
   } else if (r?.kulanzangebot === 'ausstehend') {
@@ -54,7 +54,7 @@ function buildEmail(r: DiagnoseResult | null): string {
   }
 
   const anlagenwertText = r?.anlagenwert
-    ? `Der Anlagenwert beträgt ${parseFloat(r.anlagenwert).toLocaleString('de-DE')} €.`
+    ? `Der Kaufpreis des Speichers beträgt ${parseFloat(r.anlagenwert).toLocaleString('de-DE')} €.`
     : ''
 
   return `Betreff: Anfrage SENEC-Speicherdefekt — ${modell} (${kaufjahr})

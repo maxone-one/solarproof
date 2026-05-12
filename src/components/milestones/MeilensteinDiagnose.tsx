@@ -308,15 +308,23 @@ export function MeilensteinDiagnose({ onComplete }: Props) {
   if (step === 'anlagenwert') return shell(
     <>
       <div>
-        <h2 className="text-xl font-bold text-gray-900">Was hat Ihre Anlage insgesamt gekostet?</h2>
-        <p className="mt-1 text-sm text-gray-500">Gesamtpreis aus dem Kaufvertrag — optional, hilft bei der Schadensberechnung.</p>
+        <h2 className="text-xl font-bold text-gray-900">Was hat der SENEC-Speicher beim Kauf gekostet?</h2>
+        <p className="mt-1 text-sm text-gray-500 leading-relaxed">
+          Den einmaligen Kaufpreis des Speichers aus Ihrem Vertrag — keine Strom- oder Betriebskosten.
+        </p>
+      </div>
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
+        <p className="text-xs text-amber-800 leading-relaxed">
+          <strong>Kombi-Kauf (Speicher + Module + Montage)?</strong> Tragen Sie nur den Speicher-Anteil ein.
+          Er steht im Vertrag als eigene Position oder beträgt typisch 30–50 % des Gesamtpreises.
+        </p>
       </div>
       <div className="space-y-3">
         <div className="relative">
           <input
             type="number"
             inputMode="numeric"
-            placeholder="z.B. 18000"
+            placeholder="z.B. 8000"
             value={answers.anlagenwert}
             onChange={e => set('anlagenwert', e.target.value)}
             className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-3.5 pr-14 text-base font-medium text-gray-900 focus:border-blue-400 focus:outline-none"
@@ -458,7 +466,7 @@ export function MeilensteinDiagnose({ onComplete }: Props) {
             </div>
             {coveragePct !== null && (
               <p className={`text-xs mt-3 pt-3 border-t border-black/5 ${AMPEL_CFG[ampel].text}`}>
-                Das Angebot ({kb.toLocaleString('de-DE')} €) entspricht <strong>{coveragePct}%</strong> Ihres Anlagenwerts ({aw.toLocaleString('de-DE')} €).
+                Das Angebot ({kb.toLocaleString('de-DE')} €) entspricht <strong>{coveragePct}%</strong> des Speicher-Kaufpreises ({aw.toLocaleString('de-DE')} €).
               </p>
             )}
           </div>
