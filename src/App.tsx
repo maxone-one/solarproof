@@ -39,6 +39,13 @@ function App() {
   const confirmDuplicate = useAppStore((s) => s.confirmDuplicate)
   const cancelDuplicate  = useAppStore((s) => s.cancelDuplicate)
 
+  // CSV-Zustand für kontextsensitives M3-Greeting (primitive → stabile deps)
+  const importStep       = useAppStore((s) => s.importStep)
+  const importErrorCount = useAppStore((s) => s.importErrors.length)
+  const dataGapCount     = useAppStore((s) => s.dataGaps.length)
+  const dstWarningCount  = useAppStore((s) => s.dstWarnings.length)
+  const dayCount         = useAppStore((s) => s.days.length)
+
   const [landingOpen,     setLandingOpen]     = useState(false)
   const [creditsOpen,     setCreditsOpen]     = useState(false)
   const [impressumOpen,   setImpressumOpen]   = useState(false)
@@ -75,16 +82,39 @@ function App() {
       ? ` Deine Diagnose: ${result.modell || 'SENEC'}, ${(result.defektArt ? DEFEKT[result.defektArt] : undefined) ?? result.defektArt ?? ''}${result.ampel ? ` — Ampel: ${AMPEL[result.ampel]}` : ''}.`
       : ''
 
+    // CSV-Kontext für M3 — spiegelt den aktuellen Import-Zustand wider
+    let csvHinweis = ''
+    if (current === 3) {
+      if (importStep === 'idle') {
+        csvHinweis = ' Noch keine CSV geladen — ich helfe dir beim Upload.'
+      } else if (importStep === 'mapping') {
+        csvHinweis = ' Du bist beim Spalten-Zuordnen — frag mich wenn du nicht weißt welche Spalte gemeint ist.'
+      } else if (importStep === 'done') {
+        if (importErrorCount > 0) {
+          csvHinweis = ` ${importErrorCount} Import-Fehler erkannt — frag mich, ich helfe dir.`
+        } else if (dayCount === 0) {
+          csvHinweis = ' Die CSV wurde importiert, enthält aber keine verwertbaren Daten — frag mich.'
+        } else {
+          const warnParts: string[] = []
+          if (dataGapCount > 0) warnParts.push(`${dataGapCount} Datenlücke${dataGapCount > 1 ? 'n' : ''}`)
+          if (dstWarningCount > 0) warnParts.push('Zeitumstellungshinweise')
+          csvHinweis = warnParts.length > 0
+            ? ` Hinweis: ${warnParts.join(' + ')} in deinen Daten — ich erkläre was das bedeutet.`
+            : ` ${dayCount} Tage Daten importiert.`
+        }
+      }
+    }
+
     const greetings: Record<number, string> = {
       1: `Ich begleite dich durch die Diagnose.${diagnoseHinweis} Fragen zur Kulanz-Prüfung oder zu deinen Ansprüchen?`,
       2: 'Du bist beim Daten-Export. Ich helfe dir, die CSV aus dem SENEC-Portal zu bekommen — oder kläre, was zu tun ist wenn kein Export-Button sichtbar ist.',
-      3: `Du bist bei der Analyse.${diagnoseHinweis} Frag mich zu CSV-Import, Simulation oder PDF-Export.`,
+      3: `Du bist bei der Analyse.${diagnoseHinweis}${csvHinweis} Frag mich zu CSV-Import, Simulation oder PDF-Export.`,
       4: `Nachweis erstellt.${diagnoseHinweis} Ich helfe dir, den richtigen Anwalt mit SENEC-Erfahrung zu finden.`,
       5: `Briefing-Paket wird zusammengestellt.${diagnoseHinweis} Fragen zur E-Mail-Vorlage oder zum nächsten Schritt?`,
     }
 
     el.setAttribute('greeting', greetings[current] ?? greetings[3])
-  }, [current])
+  }, [current, importStep, importErrorCount, dataGapCount, dstWarningCount, dayCount])
 
   return (
     <div className="min-h-screen bg-gray-50">
