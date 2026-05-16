@@ -177,23 +177,12 @@ export function ImpressumOverlay({ open, onClose }: Props) {
               </section>
             )}
 
-            {/* Art. 14 ODR-VO EU 524/2013 — EU-Streitschlichtung */}
+            {/* §36 VSBG */}
             <section className="pt-6 border-t border-gray-100">
-              <h2 className="text-base font-semibold text-gray-900 mb-3">EU-Streitschlichtung</h2>
+              <h2 className="text-base font-semibold text-gray-900 mb-3">Verbraucherschlichtung</h2>
               <div className="text-sm text-gray-600 space-y-2 leading-relaxed">
                 <p>
-                  Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:{' '}
-                  <a
-                    href="https://ec.europa.eu/consumers/odr/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-amber-600 hover:underline"
-                  >
-                    https://ec.europa.eu/consumers/odr/
-                  </a>
-                </p>
-                <p>
-                  Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer
+                  Wir sind nicht verpflichtet und nicht bereit, an Streitbeilegungsverfahren vor einer
                   Verbraucherschlichtungsstelle teilzunehmen.
                 </p>
               </div>
