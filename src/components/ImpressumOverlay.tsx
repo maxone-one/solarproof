@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react'
+﻿import { useEffect, useCallback, useState } from 'react'
 
 const IMPRESSUM_API = 'https://panel.maxone.one/functions/v1/impressum'
 const TIMEOUT_MS = 5000
@@ -96,7 +96,7 @@ export function ImpressumOverlay({ open, onClose }: Props) {
           <div className="space-y-8">
             {/* §5 Abs. 1 Nr. 1 TMG — Name + Anschrift */}
             <section>
-              <h2 className="text-base font-semibold text-gray-900 mb-3">Angaben gemäß § 5 TMG</h2>
+              <h2 className="text-base font-semibold text-gray-900 mb-3">Angaben gemäß § 5 DDG</h2>
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 leading-relaxed">
                 <p className="font-medium text-gray-900">{legalName}</p>
                 {data.owner_name && data.owner_name !== legalName && <p>{data.owner_name}</p>}
