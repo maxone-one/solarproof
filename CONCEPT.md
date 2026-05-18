@@ -1,81 +1,136 @@
 # CONCEPT — SolarProof
 
 > Pflicht-Dokument nach [Standard 015](https://github.com/maxone-one/maxone-standards/blob/main/standards/015-concept-gate.md).
-> Retroaktiv erstellt 2026-05-12 — Projekt läuft seit 2025.
+> Erstellt 2026-05-12 (retroaktiv). Zuletzt aktualisiert 2026-05-18.
 
 ---
 
 ## Problem
 
-Solar-Installateure müssen Zertifizierungen und Qualifikationsnachweise digital
-verwalten und gegenüber Kunden und Plattformen (wie voltfair) nachweisbar
-bereitstellen — ohne Papierstapel oder manuelle Scan-Weiterleitungen.
+SENEC-Kunden haben defekte Photovoltaik-Speicher und erhalten unzureichende
+Kulanz-Angebote — oft mit Verzichtsklauseln. Sie wissen nicht, ob das Angebot
+fair ist, kennen ihre Rechte nicht und finden keinen Anwalt mit SENEC-Erfahrung.
 
 ## Ziel / Erfolgs-Kriterium
 
-20+ Installateure verwalten Zertifikate vollständig digital; Zertifikat-Abruf
-für Partnerplattformen unter 2 Sekunden.
+Betroffene SENEC-Kunden können ihren Fall in unter 30 Minuten vollständig
+dokumentieren, das Kulanz-Angebot einschätzen lassen und einen geeigneten Anwalt
+kontaktieren — ohne eigenes juristisches Vorwissen.
 
 ## Nutzer
 
 | Rolle              | Anonym? | Eingeloggt? | Zahlend? | Anzahl bei Launch |
 |--------------------|---------|-------------|----------|-------------------|
-| Installateur       | nein    | ja          | nein     | 10–30             |
-| Admin              | nein    | ja          | nein     | 1                 |
+| SENEC-Geschädigter | ja      | nein        | nein     | ∞ (öffentlich)    |
+| Partner-Anwalt     | nein    | nein        | ja (B2B) | 9 (Stand 2026-05) |
+| Admin              | nein    | nein        | nein     | 1–2               |
+
+**Kernentscheidung:** Der Endkunde bezahlt nie. Monetarisierung ausschließlich
+über Partner-Kanzleien (B2B). Begründung: Endkunden sind skeptisch und ängstlich,
+Anwälte haben klares wirtschaftliches Interesse und sind leichter zu überzeugen.
+Leads sind stark vorqualifiziert (Diagnose + PDF + Ampel-Bewertung vorhanden).
+
+---
+
+## Business-Modell — Drei Partnermodelle für Kanzleien
+
+Alle Modelle basieren auf dem Prinzip: **Anwälte zahlen, Endkunden nie.**
+
+Die Leads sind stark vorqualifiziert: Nutzer hat Diagnose abgeschlossen,
+SENEC-Modell und Defektart dokumentiert, Kulanz-Angebot bewertet (Ampel),
+PDF mit RFC 3161-Zeitstempel erstellt. Geschätzte Konversionsrate Lead → Mandat:
+30–50 % (vs. 5–15 % bei Google Ads).
+
+Vergleichswert: Google Ads CPL im Rechtswesen Deutschland: € 100–400.
+Bei SENEC-Streitwerten typisch € 8.000–20.000.
+
+### Modell 1 — Qualifizierter Lead (Anwalt trägt Risiko)
+
+- Anwalt zahlt einmalig bei Übergabe des Leads
+- SolarProof trägt kein Ausfall-Risiko
+- Preis: **€ 150–250** einmalig
+- Geeignet für: Kanzleien mit eigener SENEC-Erfahrung und bekannter Win-Rate
+- Tracking: Klick auf Kanzlei-Website wird in `sp-referrals` (localStorage)
+  gespeichert; Kontaktbestätigung durch Nutzer optional
+
+### Modell 2 — Hybrid (geteiltes Risiko)
+
+- Kleine Anzahlung bei Lead-Übergabe: **€ 75**
+- Restzahlung bei gewonnenem Fall oder außergerichtlichem Vergleich: **€ 250**
+- Gesamt bei Erfolg: **€ 325**
+- Geeignet für: Kanzleien die Commitment zeigen wollen ohne Vollrisiko
+- SolarProof trägt anteiliges Ausfall-Risiko
+
+### Modell 3 — Pay-Per-Close (kein Risiko für den Anwalt)
+
+- Anwalt zahlt **ausschließlich** bei gewonnenem Fall oder Vergleich
+- 100 % sicheres Geschäft für die Kanzlei
+- Preis: **€ 450–600** pro abgeschlossenem Fall
+- Geeignet für: Kanzleien ohne SENEC-Erfahrung, die kein Risiko eingehen wollen
+- Für SolarProof: höchster Einzelpreis, aber Expected Value (bei 40 % Win-Rate)
+  liegt bei € 180–240 — niedriger als Modell 1
+
+**Upselling-Logik:** Modell 1 als Standard-Einstieg für etablierte Partner.
+Modell 3 als Premium-Option sobald Win-Rate-Daten aus echten Fällen vorliegen.
+
+---
 
 ## Datenmodell
 
-| Entität           | Felder (Beispiele)                        | Sensitivität                       |
-|-------------------|-------------------------------------------|------------------------------------|
-| `users`           | email, company, role                      | personenbezogen (DSGVO Art. 4)     |
-| `certifications`  | user_id, cert_type, issue_date, file_url  | berufsbezogen                      |
+| Entität         | Felder                                                        | Sensitivität                   |
+|-----------------|---------------------------------------------------------------|--------------------------------|
+| `lawyers`       | id, name, kanzlei, plz, ort, bundesland, schwerpunkte, ...   | öffentlich (Anwaltsdaten)      |
+| `sp-referrals`  | lawyerId, kanzlei, ts, status, contactedAt (localStorage)     | nicht-personenbezogen          |
 
 **Besondere Kategorien (Art. 9 DSGVO):** nein.
 **DSFA fällig:** nein.
 
+---
+
 ## Auth-Modell
 
-| Entität           | Lesen             | Schreiben           | Löschen     |
-|-------------------|-------------------|---------------------|-------------|
-| `certifications`  | self + admin      | self (Upload)       | admin       |
+| Funktion          | Zugang                            |
+|-------------------|-----------------------------------|
+| Tool nutzen       | anonym, ohne Login                |
+| Anwälte lesen     | anon-Key (public)                 |
+| Anwälte schreiben | SERVICE_ROLE_KEY (Admin-only)     |
 
-**Implementierung:** Supabase RLS. React + Supabase client auth.
+---
 
 ## Externe Dienste
 
-| Dienst   | Zweck              | Region | AVV/DPA       | Datenkategorie     |
-|----------|--------------------|--------|----------------|---------------------|
-| Hetzner  | Hosting            | EU     | ✅ Standard    | alle                |
-| Supabase | Auth + DB + Storage| EU     | ✅ Pro-Plan    | User, Cert-Files    |
+| Dienst            | Zweck                         | Region | AVV/DPA    | Datenkategorie       |
+|-------------------|-------------------------------|--------|------------|----------------------|
+| Hetzner           | Hosting (voltfair-cli)        | EU     | ✅ Standard | Build-Artefakte      |
+| Supabase (maxone) | DB (lawyers) + Edge Functions | EU     | ✅ Pro-Plan | Anwaltsdaten         |
+| Vector / Claude   | KI-Kulanz-Analyse (kulanz-ai) | EU     | via maxone | Diagnosedaten (anon) |
 
-## Threat-Model (Top 2)
+---
 
-1. **Risiko:** Gefälschte Zertifikate hochgeladen
-   **Abwehr:** Admin-Review vor Veröffentlichung; AI-Vision-Check (Claude) geplant
+## Stack
 
-2. **Risiko:** Unbefugter Zugriff auf Zertifikate anderer Nutzer
-   **Abwehr:** Supabase RLS user_id-Filter
-
-## Stack-Wahl
-
-| Schicht             | Wahl             | Warum?                    |
-|---------------------|------------------|---------------------------|
-| Frontend Framework  | React + Vite     | Standard für SPA          |
-| DB + Storage        | Supabase         | Auth + File-Storage       |
-| Hosting             | Hetzner          | EU, eigene Infra          |
+| Schicht            | Wahl                    | Warum?                                   |
+|--------------------|-------------------------|------------------------------------------|
+| Frontend           | React + Vite + Tailwind | SPA, kein SSR nötig, schneller Build     |
+| Hosting            | voltfair-cli (Hetzner)  | EU, eigene Infra, Blue/Green             |
+| DB + Functions     | Supabase (maxone-prod)  | lawyers-Tabelle + kulanz-ai Edge Fn      |
+| KI                 | Claude via Edge Fn      | Kulanz-Analyse, Vector-Widget            |
+| PDF                | jsPDF + RFC 3161        | Manipulationssicherer Nachweis           |
 
 ## Out of Scope
 
 - Mobile App
-- Öffentliches Installer-Verzeichnis (liegt in voltfair)
+- Login / Nutzerkonto
+- Endkunden-Zahlung (bewusste Entscheidung, 2026-05-18)
+- Bayern-Kanzlei (noch nicht gefunden, Stand 2026-05-18)
 
 ---
 
 ## Gate 1 — Konzept-Sign-Off
 
-- **Vorgeschlagen von:** Max Karastelev (@karastoni) am 2025-01-01
-- **Reviewed von:** Max Karastelev (@karastoni) am 2026-05-12 (retroaktiver Gate-1)
+- **Vorgeschlagen von:** Max Karastelev (@karastoni) + Robert
+- **Reviewed von:** Max Karastelev (@karastoni) am 2026-05-18
 - **Gate 1:** PASSIERT
-- **Bekannte Risiken:** AI-Vision-Zertifikat-Check vor Prod-Rollout testen
-- **DSFA fällig (DSGVO Art. 35):** nein — geprüft am 2026-05-12
+- **Bekannte Risiken:** Win-Rate-Daten für Modell 3 fehlen noch; Bayern-Kanzlei offen
+- **DSFA fällig (DSGVO Art. 35):** nein — keine Gesundheits- oder Sonderdaten
 - **Standard 016 (Stack-Whitelist) konform:** ja
