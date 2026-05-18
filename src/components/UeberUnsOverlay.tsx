@@ -49,8 +49,13 @@ export function UeberUnsOverlay({ open, onClose }: Props) {
           <p className="text-xs font-medium uppercase tracking-[0.25em] text-gray-500 mb-3">Von Betroffenen, für Betroffene</p>
           <h1 className="text-3xl font-bold text-gray-900">Wer steckt hinter SolarProof?</h1>
           <p className="mt-4 text-base text-gray-600 leading-relaxed">
-            SolarProof ist kein Unternehmen. Es ist ein Werkzeug — gebaut von zwei Menschen,
-            die selbst wissen wie es sich anfühlt, gegen SENEC zu kämpfen.
+            SolarProof wurde nicht von Anwälten gebaut — sondern von echten Geschädigten,
+            die zufällig selbst aus der Photovoltaikbranche kommen. Wir wissen, wie die
+            Technik funktioniert, wir wissen, was SENEC verspricht — und wir wissen aus
+            eigener Erfahrung, wann etwas davon nicht stimmt.
+          </p>
+          <p className="mt-3 text-sm text-gray-500 leading-relaxed">
+            Kein Interessenkonflikt. Kein Mandat. Nur Menschen, die dasselbe Problem haben wie Sie.
           </p>
         </div>
 
@@ -61,12 +66,13 @@ export function UeberUnsOverlay({ open, onClose }: Props) {
             <Avatar initials="R" color="bg-amber-500" />
             <div>
               <p className="font-bold text-gray-900 text-lg">Robert</p>
-              <p className="text-sm text-gray-500 mt-0.5">Mitgründer · persönlich betroffen</p>
+              <p className="text-sm text-gray-500 mt-0.5">Mitgründer · PV-Fachmann · persönlich betroffen</p>
               <p className="text-sm text-gray-600 mt-3 leading-relaxed">
-                Roberts eigene SENEC-Anlage funktioniert nicht wie versprochen.
-                Er hat selbst erlebt, wie zäh die Kommunikation mit SENEC ist,
-                wie unverbindlich Kulanz-Angebote formuliert sind — und wie schwer
-                es ist, ohne juristische Hilfe die eigenen Rechte zu kennen.
+                Robert arbeitet selbst in der Photovoltaikbranche — und trotzdem hat ihn
+                SENEC mit einer defekten Anlage im Stich gelassen. Er weiß, was die
+                Technik leisten sollte, er versteht die Messdaten — und er hat erlebt,
+                wie unverbindlich Kulanz-Angebote formuliert sind, wenn man den
+                Hersteller nicht unter Druck setzen kann.
                 SolarProof entstand aus genau dieser Frustration.
               </p>
             </div>
@@ -76,13 +82,13 @@ export function UeberUnsOverlay({ open, onClose }: Props) {
             <Avatar initials="MK" color="bg-blue-600" />
             <div>
               <p className="font-bold text-gray-900 text-lg">Max Karastelev</p>
-              <p className="text-sm text-gray-500 mt-0.5">Mitgründer · Entwickler</p>
+              <p className="text-sm text-gray-500 mt-0.5">Mitgründer · Entwickler · aus der PV-Branche</p>
               <p className="text-sm text-gray-600 mt-3 leading-relaxed">
-                Max' Eltern sind SENEC-Kunden — und stecken mitten im Verfahren.
-                Als Entwickler hat er gesehen: es gibt kein vernünftiges Tool,
-                das Betroffene durch den Prozess führt. Kein strukturiertes Dokument,
-                keine Orientierung, keine Anwaltsvermittlung mit echter SENEC-Erfahrung.
-                Also hat er eins gebaut.
+                Max kommt ebenfalls aus der Photovoltaikbranche und kennt die technische
+                Seite von SENEC-Anlagen aus der Praxis. Seine Eltern sind SENEC-Kunden —
+                und stecken mitten im Verfahren. Als er sah, dass es kein vernünftiges
+                Tool gibt, das Betroffene strukturiert durch den Prozess führt,
+                hat er eins gebaut.
               </p>
             </div>
           </div>

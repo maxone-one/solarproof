@@ -153,7 +153,7 @@ function App() {
 
       {/* ── Trust-Strip ─────────────────────────────────────────────────── */}
       <div className="bg-amber-50 border-b border-amber-100 px-4 py-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-amber-800">
-        <span>Von SENEC-Betroffenen gebaut</span>
+        <span>Von PV-Fachleuten gebaut, die selbst betroffen sind</span>
         <span className="text-amber-300">·</span>
         <span>Kostenlos</span>
         <span className="text-amber-300">·</span>
