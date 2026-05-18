@@ -11,6 +11,7 @@ import type {
 } from '../types'
 import type { CostParams } from '../types/cost'
 import { autoDetectMapping, parseCSVPreview, parseCSVWithMapping, validateMapping, detectInputUnit, detectImplausibleValues } from '../utils/csv'
+import { mergeCSVTexts } from '../utils/csv-merge'
 import type { InputUnit } from '../types'
 import { processRawData } from '../utils/timezone'
 import { runSimulation } from '../utils/simulation'
@@ -21,17 +22,6 @@ import { saveState, loadState, clearState, type PersistedState } from './persist
 /** Yield to browser for a frame so UI can update (loading indicators, etc.) */
 const yieldToUI = () => new Promise<void>((resolve) => setTimeout(resolve, 0))
 
-/** Merge multiple CSV texts: use header from first file, skip headers in rest */
-function mergeCSVTexts(texts: string[]): string {
-  if (texts.length === 1) return texts[0]
-  const lines0 = texts[0].split('\n')
-  const header = lines0[0]
-  const dataLines = [
-    ...lines0.slice(1),
-    ...texts.slice(1).flatMap((t) => t.split('\n').slice(1)),
-  ].filter((l) => l.trim().length > 0)
-  return [header, ...dataLines].join('\n')
-}
 
 export type ImportStep = 'idle' | 'mapping' | 'processing' | 'done'
 
