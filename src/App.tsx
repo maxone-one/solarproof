@@ -57,6 +57,25 @@ function App() {
 
   useEffect(() => { rehydrate() }, [rehydrate])
 
+  // Premium payment redirect handler
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const paymentId = params.get('sp_payment')
+    if (!paymentId) return
+    // Clean URL immediately
+    window.history.replaceState({}, '', window.location.pathname + window.location.hash)
+    import('./data/premium').then(({ verifyPayment, storePremiumToken }) => {
+      verifyPayment(paymentId).then(({ status, token }) => {
+        if (status === 'paid' && token) {
+          storePremiumToken(token)
+          // Navigate to M1 to show premium state
+          goTo(1)
+        }
+      }).catch(() => {/* silent — user can retry */})
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // ── Vector Widget: kontextsensitives Greeting pro Meilenstein ────────────
   useEffect(() => {
     const el = document.querySelector('vector-chat')

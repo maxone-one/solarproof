@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { PremiumCtaCard } from '../PremiumCtaCard'
+import { isPremium, getPremiumToken } from '../../data/premium'
 
 const KULANZ_AI_URL = 'https://panel.maxone.one/functions/v1/kulanz-ai'
 
@@ -105,7 +107,7 @@ export function MeilensteinDiagnose({ onComplete }: Props) {
     setAngebotText('')
   }
 
-  async function analyzeWithVector() {
+  async function analyzeWithVector(premium = false) {
     setAiLoading(true)
     setAiError(null)
     setAiAnalysis(null)
@@ -114,10 +116,12 @@ export function MeilensteinDiagnose({ onComplete }: Props) {
       const kb = parseFloat(answers.kulanzBetrag)
       const pct = !isNaN(aw) && aw > 0 && !isNaN(kb) && kb > 0 ? Math.round((kb / aw) * 100) : null
       const diagnose = { ...answers, ampel: computeAmpel(), coveragePct: pct }
+      const body: Record<string, unknown> = { diagnose, angebotText: angebotText.trim() || undefined }
+      if (premium) body.premiumToken = getPremiumToken()
       const res = await fetch(KULANZ_AI_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ diagnose, angebotText: angebotText.trim() || undefined }),
+        body: JSON.stringify(body),
       })
       const data = await res.json()
       if (!res.ok || data.error) throw new Error(data.error ?? 'Unbekannter Fehler')
@@ -560,6 +564,11 @@ export function MeilensteinDiagnose({ onComplete }: Props) {
             </div>
           )}
         </div>
+
+        {/* Premium CTA */}
+        <PremiumCtaCard
+          onPremiumActive={isPremium() ? () => analyzeWithVector(true) : undefined}
+        />
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
           <h3 className="text-sm font-semibold text-gray-900">Ihre möglichen Ansprüche</h3>
