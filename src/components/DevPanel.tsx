@@ -3,8 +3,9 @@ import type { AuthState } from '../hooks/useAuth'
 import { PANEL_URL, supabase } from '../lib/supabase'
 
 const DEV_ACCOUNTS = [
-  { label: 'Nutzer',  email: 'test-nutzer@solarproof.dev',  role: 'user',   color: '#334155' },
-  { label: 'Anwalt',  email: 'test-anwalt@solarproof.dev',  role: 'lawyer', color: '#1d4ed8' },
+  { label: 'Nutzer', email: 'test-nutzer@solarproof.dev', role: 'user',   color: '#334155' },
+  { label: 'Anwalt', email: 'test-anwalt@solarproof.dev', role: 'lawyer', color: '#1d4ed8' },
+  { label: 'Admin',  email: 'test-admin@solarproof.dev',  role: 'admin',  color: '#92400e' },
 ] as const
 
 const DEV_PASSWORD = 'solarproof-dev-2026'
