@@ -91,7 +91,7 @@ export interface LawyerSubmission {
 export async function submitLawyer(submission: LawyerSubmission): Promise<void> {
   const res = await fetch(`${PANEL_URL}/functions/v1/submit-lawyer`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
+    headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}` },
     body: JSON.stringify(submission),
   })
   if (!res.ok) {
