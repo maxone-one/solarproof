@@ -11,7 +11,7 @@ const EXTERNAL_LINKS = [
   { label: 'advocado.de',       href: 'https://www.advocado.de' },
 ]
 
-function LawyerCard({ lawyer }: { lawyer: Lawyer }) {
+function LawyerCard({ lawyer, onContact }: { lawyer: Lawyer; onContact: (l: Lawyer) => void }) {
   return (
     <div className={`bg-white rounded-2xl border shadow-sm p-5 space-y-3 ${lawyer.listing_typ === 'premium' ? 'border-blue-200' : 'border-gray-100'}`}>
       {lawyer.listing_typ === 'premium' && (
@@ -54,6 +54,7 @@ function LawyerCard({ lawyer }: { lawyer: Lawyer }) {
           href={lawyer.website}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => onContact(lawyer)}
           className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
         >
           {lawyer.website.replace(/^https?:\/\//, '')}
@@ -66,11 +67,37 @@ function LawyerCard({ lawyer }: { lawyer: Lawyer }) {
   )
 }
 
+function trackClick(lawyer: Lawyer, status: 'clicked' | 'contacted') {
+  try {
+    const prev: { lawyerId: string; kanzlei: string; ts: number; status: string; contactedAt?: number }[] =
+      JSON.parse(localStorage.getItem('sp-referrals') || '[]')
+    const existing = prev.findIndex(r => r.lawyerId === lawyer.id)
+    if (existing >= 0) {
+      prev[existing] = { ...prev[existing], status, ...(status === 'contacted' ? { contactedAt: Date.now() } : {}) }
+    } else {
+      prev.push({ lawyerId: lawyer.id, kanzlei: lawyer.kanzlei, ts: Date.now(), status })
+    }
+    localStorage.setItem('sp-referrals', JSON.stringify(prev))
+  } catch {}
+}
+
 export function MeilensteinAnwalt({ onBack, onComplete }: Props) {
   const [plz, setPlz] = useState('')
   const [lawyers, setLawyers] = useState<Lawyer[]>([])
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState(false)
+  const [clickedLawyer, setClickedLawyer] = useState<Lawyer | null>(null)
+  const [contactStep, setContactStep] = useState<'idle' | 'skipped'>('idle')
+
+  function handleLawyerContact(lawyer: Lawyer) {
+    setClickedLawyer(lawyer)
+    trackClick(lawyer, 'clicked')
+  }
+
+  function confirmContact() {
+    if (clickedLawyer) trackClick(clickedLawyer, 'contacted')
+    onComplete()
+  }
 
   useEffect(() => {
     fetchLawyers()
@@ -151,7 +178,7 @@ export function MeilensteinAnwalt({ onBack, onComplete }: Props) {
           {!loading && regional.length > 0 && (
             <div className="space-y-3">
               <p className="text-xs font-medium text-blue-600 uppercase tracking-wide">In Ihrer Region</p>
-              {regional.map(l => <LawyerCard key={l.id} lawyer={l} />)}
+              {regional.map(l => <LawyerCard key={l.id} lawyer={l} onContact={handleLawyerContact} />)}
             </div>
           )}
 
@@ -164,7 +191,7 @@ export function MeilensteinAnwalt({ onBack, onComplete }: Props) {
           {!loading && bundesweit.length > 0 && (
             <div className="space-y-3">
               {plz.length >= 5 && <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Bundesweit</p>}
-              {bundesweit.map(l => <LawyerCard key={l.id} lawyer={l} />)}
+              {bundesweit.map(l => <LawyerCard key={l.id} lawyer={l} onContact={handleLawyerContact} />)}
             </div>
           )}
         </div>
@@ -216,12 +243,44 @@ export function MeilensteinAnwalt({ onBack, onComplete }: Props) {
           </p>
         </div>
 
-        <button
-          onClick={onComplete}
-          className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-base py-4 rounded-xl transition-colors"
-        >
-          Weiter zu Schritt 5 — Anwalt briefen →
-        </button>
+        {/* Kontakt-Bestätigung — erscheint nach erstem Kanzlei-Klick */}
+        {clickedLawyer && contactStep === 'idle' ? (
+          <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+              <p className="text-sm font-semibold text-blue-900">{clickedLawyer.kanzlei} geöffnet</p>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Haben Sie bereits Kontakt aufgenommen?</p>
+              <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                Ihre Bestätigung schaltet das persönliche Briefing-Paket für Ihren Anwaltstermin frei.
+              </p>
+            </div>
+            <button
+              onClick={confirmContact}
+              className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm py-4 rounded-xl transition-colors"
+            >
+              ✓ Ja, ich habe kontaktiert — weiter zu Schritt 5 →
+            </button>
+            <button
+              onClick={() => setContactStep('skipped')}
+              className="w-full text-xs text-gray-400 hover:text-gray-600 py-1 transition-colors"
+            >
+              Noch nicht — ich schaue mich noch um
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onComplete}
+            className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-base py-4 rounded-xl transition-colors"
+          >
+            Weiter zu Schritt 5 — Anwalt briefen →
+          </button>
+        )}
 
         <button onClick={onBack} className="w-full text-sm text-gray-400 hover:text-gray-600 py-2">
           ← Zurück zur Analyse

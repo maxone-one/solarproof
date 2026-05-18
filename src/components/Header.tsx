@@ -1,6 +1,6 @@
 import { useAppStore } from '../store'
 
-export function Header({ onCredits, onImpressum, onDatenschutz }: { onCredits: () => void; onImpressum: () => void; onDatenschutz: () => void }) {
+export function Header({ onCredits, onImpressum, onDatenschutz, onUeberUns }: { onCredits: () => void; onImpressum: () => void; onDatenschutz: () => void; onUeberUns: () => void }) {
   const fileMetadataList = useAppStore((s) => s.fileMetadataList)
   const importStep = useAppStore((s) => s.importStep)
 
@@ -19,6 +19,8 @@ export function Header({ onCredits, onImpressum, onDatenschutz }: { onCredits: (
           <h1 className="text-lg font-semibold text-gray-900">SolarProof</h1>
           <span className="text-xs text-gray-400">
             v{__APP_VERSION__} &middot;{' '}
+            <button onClick={onUeberUns} className="hover:text-amber-500 transition-colors">Über uns</button>
+            {' '}&middot;{' '}
             <button onClick={onCredits} className="hover:text-amber-500 transition-colors">Credits</button>
             {' '}&middot;{' '}
             <button onClick={onImpressum} className="hover:text-amber-500 transition-colors">Impressum</button>
