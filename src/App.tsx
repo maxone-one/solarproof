@@ -22,6 +22,7 @@ const LandingOverlay       = lazy(() => import('./components/LandingOverlay').th
 const CreditsOverlay       = lazy(() => import('./components/CreditsOverlay').then(m => ({ default: m.CreditsOverlay })))
 const ImpressumOverlay     = lazy(() => import('./components/ImpressumOverlay').then(m => ({ default: m.ImpressumOverlay })))
 const DatenschutzOverlay   = lazy(() => import('./components/DatenschutzOverlay').then(m => ({ default: m.DatenschutzOverlay })))
+const AdminOverlay         = lazy(() => import('./components/AdminOverlay').then(m => ({ default: m.AdminOverlay })))
 
 function MilestoneSpinner() {
   return (
@@ -50,6 +51,7 @@ function App() {
   const [creditsOpen,     setCreditsOpen]     = useState(false)
   const [impressumOpen,   setImpressumOpen]   = useState(false)
   const [datenschutzOpen, setDatenschutzOpen] = useState(false)
+  const [adminOpen,       setAdminOpen]       = useState(() => window.location.hash === '#sp-admin')
 
   const { current, completed, goTo, complete } = useMilestones()
 
@@ -148,6 +150,7 @@ function App() {
           {creditsOpen     && <CreditsOverlay     open onClose={() => setCreditsOpen(false)} />}
           {impressumOpen   && <ImpressumOverlay   open onClose={() => setImpressumOpen(false)} />}
           {datenschutzOpen && <DatenschutzOverlay open onClose={() => setDatenschutzOpen(false)} />}
+          {adminOpen       && <AdminOverlay onClose={() => { setAdminOpen(false); window.location.hash = '' }} />}
         </Suspense>
       </ErrorBoundary>
 

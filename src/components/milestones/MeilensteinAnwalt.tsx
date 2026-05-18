@@ -1,33 +1,93 @@
+import { useState, useEffect } from 'react'
+import { fetchLawyers, plzToBundesland, type Lawyer } from '../../data/lawyers'
+
 interface Props {
   onBack: () => void
   onComplete: () => void
 }
 
-const TIPPS = [
-  {
-    title: 'Schwerpunkt: Produkthaftung oder Kaufrecht',
-    desc: 'Suchen Sie nach Anwälten mit Erfahrung in „Produkthaftung", „PV-Anlagen" oder „Kaufrechtsmängel". SENEC-Fälle häufen sich — viele Kanzleien haben bereits Erfahrung.',
-  },
-  {
-    title: 'Anwaltssuche: anwaltauskunft.de oder advocado.de',
-    desc: 'PLZ eingeben, Schwerpunkt wählen. Viele Anwälte bieten eine kostenlose oder günstige Erstberatung an.',
-  },
-  {
-    title: 'Das bringen Sie mit',
-    desc: 'SolarProof-PDF, Kaufvertrag, alle Schreiben mit SENEC, Kulanz-Angebot (wenn vorhanden). Je mehr Dokumentation, desto schneller die Einschätzung.',
-  },
-  {
-    title: 'OLG Hamm als Argument',
-    desc: 'Az. 2 U 5/25 (11.04.2025) — Drosselung auf 70% = Sachmangel, Rücktrittsrecht. Bei Totalausfall gilt das erst recht.',
-  },
-]
-
-const LINKS = [
+const EXTERNAL_LINKS = [
   { label: 'anwaltauskunft.de', href: 'https://www.anwaltauskunft.de' },
   { label: 'advocado.de',       href: 'https://www.advocado.de' },
 ]
 
+function LawyerCard({ lawyer }: { lawyer: Lawyer }) {
+  return (
+    <div className={`bg-white rounded-2xl border shadow-sm p-5 space-y-3 ${lawyer.listing_typ === 'premium' ? 'border-blue-200' : 'border-gray-100'}`}>
+      {lawyer.listing_typ === 'premium' && (
+        <span className="inline-block text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">Partner</span>
+      )}
+      <div>
+        <p className="font-bold text-gray-900 text-sm">{lawyer.name}</p>
+        <p className="text-xs text-gray-500">{lawyer.kanzlei}</p>
+        <p className="text-xs text-gray-400 mt-0.5">{lawyer.ort} · {lawyer.bundesland}</p>
+      </div>
+
+      <div className="flex flex-wrap gap-1.5">
+        {lawyer.schwerpunkte.map(s => (
+          <span key={s} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{s}</span>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-4 text-xs text-gray-500">
+        {lawyer.senec_faelle > 0 && (
+          <span className="flex items-center gap-1">
+            <span className="w-4 h-4 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold text-[10px]">✓</span>
+            {lawyer.senec_faelle} SENEC-Fälle
+          </span>
+        )}
+        <span>
+          {lawyer.erstberatung_kostenlos
+            ? '✓ Erstberatung kostenlos'
+            : lawyer.erstberatung_eur
+              ? `Erstberatung ab ${lawyer.erstberatung_eur} €`
+              : 'Erstberatung auf Anfrage'}
+        </span>
+      </div>
+
+      {lawyer.beschreibung && (
+        <p className="text-xs text-gray-600 leading-relaxed">{lawyer.beschreibung}</p>
+      )}
+
+      {lawyer.website && (
+        <a
+          href={lawyer.website}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
+        >
+          {lawyer.website.replace(/^https?:\/\//, '')}
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      )}
+    </div>
+  )
+}
+
 export function MeilensteinAnwalt({ onBack, onComplete }: Props) {
+  const [plz, setPlz] = useState('')
+  const [lawyers, setLawyers] = useState<Lawyer[]>([])
+  const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
+
+  useEffect(() => {
+    fetchLawyers()
+      .then(setLawyers)
+      .catch(() => setFetchError(true))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const filtered = plz.length >= 5
+    ? lawyers.filter(l => l.plz.slice(0, 2) === plz.slice(0, 2))
+    : lawyers
+
+  const regional   = plz.length >= 5 ? filtered : []
+  const bundesweit = plz.length >= 5 ? lawyers.filter(l => l.plz.slice(0, 2) !== plz.slice(0, 2)) : lawyers
+
+  const userRegion = plz.length >= 5 ? plzToBundesland(plz) : null
+
   return (
     <div className="min-h-[calc(100vh-112px)] flex flex-col">
       <div className="flex-1 max-w-2xl mx-auto w-full px-5 py-8 space-y-5">
@@ -56,17 +116,72 @@ export function MeilensteinAnwalt({ onBack, onComplete }: Props) {
           </div>
         </div>
 
+        {/* PLZ-Suche */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
+          <h3 className="text-sm font-semibold text-gray-900">Anwälte in Ihrer Nähe</h3>
+          <div className="relative">
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={5}
+              value={plz}
+              onChange={e => setPlz(e.target.value.replace(/\D/g, ''))}
+              placeholder="PLZ eingeben …"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:border-blue-400 focus:outline-none"
+            />
+            {userRegion && (
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400">{userRegion}</span>
+            )}
+          </div>
+
+          {loading && (
+            <div className="flex items-center gap-2 py-4 justify-center">
+              <div className="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+              <span className="text-sm text-gray-400">Lade Anwälte …</span>
+            </div>
+          )}
+
+          {!loading && !fetchError && lawyers.length === 0 && (
+            <div className="py-4 text-center space-y-1">
+              <p className="text-sm text-gray-500">Noch keine regionalen Partner eingetragen.</p>
+              <p className="text-xs text-gray-400">Nutzen Sie die externen Suchen weiter unten.</p>
+            </div>
+          )}
+
+          {!loading && regional.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-blue-600 uppercase tracking-wide">In Ihrer Region</p>
+              {regional.map(l => <LawyerCard key={l.id} lawyer={l} />)}
+            </div>
+          )}
+
+          {!loading && plz.length >= 5 && regional.length === 0 && lawyers.length > 0 && (
+            <p className="text-xs text-amber-700 bg-amber-50 rounded-xl px-3 py-2">
+              Keine Einträge für {userRegion} — bundesweite Anwälte weiter unten.
+            </p>
+          )}
+
+          {!loading && bundesweit.length > 0 && (
+            <div className="space-y-3">
+              {plz.length >= 5 && <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Bundesweit</p>}
+              {bundesweit.map(l => <LawyerCard key={l.id} lawyer={l} />)}
+            </div>
+          )}
+        </div>
+
         {/* Tipps */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="px-5 py-3.5 border-b border-gray-100">
             <h3 className="text-sm font-semibold text-gray-900">So finden Sie den richtigen Anwalt</h3>
           </div>
           <div className="p-5 space-y-4">
-            {TIPPS.map((t, i) => (
+            {[
+              { title: 'Schwerpunkt: Produkthaftung oder Kaufrecht', desc: 'Suchen Sie nach Anwälten mit Erfahrung in „Produkthaftung", „PV-Anlagen" oder „Kaufrechtsmängel". SENEC-Fälle häufen sich — viele Kanzleien haben bereits Erfahrung.' },
+              { title: 'OLG Hamm als Argument', desc: 'Az. 2 U 5/25 (11.04.2025) — Drosselung auf 70% = Sachmangel, Rücktrittsrecht. Bei Totalausfall gilt das erst recht. Ihr Anwalt kann das sofort einsetzen.' },
+              { title: 'Das bringen Sie mit', desc: 'SolarProof-PDF, Kaufvertrag, alle Schreiben mit SENEC, Kulanz-Angebot wenn vorhanden. Je mehr Dokumentation, desto schneller die Einschätzung.' },
+            ].map((t, i) => (
               <div key={i} className="flex items-start gap-3.5">
-                <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
-                  {i + 1}
-                </span>
+                <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
                 <div>
                   <p className="text-sm font-semibold text-gray-800">{t.title}</p>
                   <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{t.desc}</p>
@@ -76,9 +191,9 @@ export function MeilensteinAnwalt({ onBack, onComplete }: Props) {
           </div>
         </div>
 
-        {/* Direkt-Links */}
+        {/* Externe Suchen */}
         <div className="grid grid-cols-2 gap-3">
-          {LINKS.map(({ label, href }) => (
+          {EXTERNAL_LINKS.map(({ label, href }) => (
             <a
               key={href}
               href={href}
@@ -94,12 +209,10 @@ export function MeilensteinAnwalt({ onBack, onComplete }: Props) {
           ))}
         </div>
 
-        {/* Coming soon */}
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 space-y-1.5">
-          <p className="text-sm font-semibold text-blue-900">Demnächst: Automatisches Matching</p>
-          <p className="text-sm text-blue-700 leading-relaxed">
-            Wir bauen ein Netzwerk von Anwälten mit SENEC-Erfahrung in Ihrer Region —
-            kein bezahltes Ranking, nur Relevanz, kostenlose Ersteinschätzung vieler Partner.
+        <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
+          <p className="text-xs text-amber-800 leading-relaxed">
+            <strong>Hinweis:</strong> Diese Liste ist kein bezahltes Ranking und keine Vermittlung im Sinne von BRAO § 49b.
+            Alle Anwälte sind öffentlich verifizierbar. SolarProof gibt keine Rechtsberatung.
           </p>
         </div>
 
@@ -110,10 +223,7 @@ export function MeilensteinAnwalt({ onBack, onComplete }: Props) {
           Weiter zu Schritt 5 — Anwalt briefen →
         </button>
 
-        <button
-          onClick={onBack}
-          className="w-full text-sm text-gray-400 hover:text-gray-600 py-2"
-        >
+        <button onClick={onBack} className="w-full text-sm text-gray-400 hover:text-gray-600 py-2">
           ← Zurück zur Analyse
         </button>
 
