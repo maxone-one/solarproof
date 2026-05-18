@@ -6,18 +6,20 @@ import { Prozessleiste } from './components/Prozessleiste'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { DuplicateDialog } from './components/DuplicateDialog'
 import { DevPanel } from './components/DevPanel'
+import { AnwaltDashboard } from './components/AnwaltDashboard'
+import { SharedCaseBanner } from './components/SharedCaseBanner'
+import { ShareCaseButton } from './components/ShareCaseButton'
 import { useMilestones } from './hooks/useMilestones'
 import { useAppStore } from './store'
 import { useContent } from './hooks/useContent'
 import { TRUST_STRIP_DEFAULT, type TrustStripItems } from './data/contentDefaults'
+import type { SharedCaseRow } from './lib/caseSync'
+
 // Lokale Kopie — verhindert statischen Import von MeilensteinDiagnose (würde Lazy-Chunk brechen)
 const SP_DIAGNOSE_KEY = 'sp-diagnose-result'
 interface DiagnoseSnapshot { modell?: string; defektArt?: string; ampel?: string }
 
 // ── Lazy chunks ──────────────────────────────────────────────────────────────
-// Milestone-Schritte und schwere Overlays landen nicht im Initial-Bundle.
-// M3Analyse kapselt jsPDF + chart.js — größter Spareffekt.
-
 const MeilensteinDiagnose  = lazy(() => import('./components/milestones/MeilensteinDiagnose').then(m => ({ default: m.MeilensteinDiagnose })))
 const MeilensteinExport    = lazy(() => import('./components/milestones/MeilensteinExport').then(m => ({ default: m.MeilensteinExport })))
 const MeilensteinAnwalt    = lazy(() => import('./components/milestones/MeilensteinAnwalt').then(m => ({ default: m.MeilensteinAnwalt })))
@@ -58,6 +60,9 @@ function App() {
   const dstWarningCount  = useAppStore((s) => s.dstWarnings.length)
   const dayCount         = useAppStore((s) => s.days.length)
 
+  // Lawyer: welcher Fall wird gerade angesehen
+  const [viewedCase, setViewedCase] = useState<SharedCaseRow | null>(null)
+
   const [landingOpen,     setLandingOpen]     = useState(false)
   const [creditsOpen,     setCreditsOpen]     = useState(false)
   const [impressumOpen,   setImpressumOpen]   = useState(false)
@@ -77,16 +82,14 @@ function App() {
     const params = new URLSearchParams(window.location.search)
     const paymentId = params.get('sp_payment')
     if (!paymentId) return
-    // Clean URL immediately
     window.history.replaceState({}, '', window.location.pathname + window.location.hash)
     import('./data/premium').then(({ verifyPayment, storePremiumToken }) => {
       verifyPayment(paymentId).then(({ status, token }) => {
         if (status === 'paid' && token) {
           storePremiumToken(token)
-          // Navigate to M1 to show premium state
           goTo(1)
         }
-      }).catch(() => {/* silent — user can retry */})
+      }).catch(() => {/* silent */})
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -118,7 +121,6 @@ function App() {
       ? ` Deine Diagnose: ${result.modell || 'SENEC'}, ${(result.defektArt ? DEFEKT[result.defektArt] : undefined) ?? result.defektArt ?? ''}${result.ampel ? ` — Ampel: ${AMPEL[result.ampel]}` : ''}.`
       : ''
 
-    // CSV-Kontext für M3 — spiegelt den aktuellen Import-Zustand wider
     let csvHinweis = ''
     if (current === 3) {
       if (importStep === 'idle') {
@@ -152,6 +154,89 @@ function App() {
     el.setAttribute('greeting', greetings[current] ?? greetings[3])
   }, [current, importStep, importErrorCount, dataGapCount, dstWarningCount, dayCount])
 
+  // ── Lawyer: Case-View aus SharedCaseRow laden ─────────────────────────────
+  function openSharedCase(row: SharedCaseRow) {
+    const s = row.state
+    useAppStore.setState({
+      columnMapping:    s.columnMapping,
+      inputIsUTC:       s.inputIsUTC,
+      inputUnit:        s.inputUnit,
+      simulationParams: s.simulationParams,
+      costParams:       s.costParams,
+      costCapOverrides: s.costCapOverrides,
+      // Metadata ohne CSV — nur für Anzeige
+      fileMetadataList: s.fileMetadataList.map(f => ({
+        ...f,
+        importTimestamp: new Date(f.importTimestamp),
+      })),
+      importStep: 'done',
+    })
+    setViewedCase(row)
+  }
+
+  function exitSharedCase() {
+    // Store zurücksetzen auf lokalen Zustand (rehydrate liest IndexedDB)
+    useAppStore.getState().rehydrate()
+    setViewedCase(null)
+  }
+
+  // ── Lawyer-View: Dashboard oder geöffneter Fall ───────────────────────────
+  if (auth.isLawyer && !auth.isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header
+          auth={auth}
+          syncStatus={syncStatus}
+          onAuth={() => setAuthOpen(true)}
+          onAdmin={() => setAdminOpen(true)}
+          onUeberUns={() => setUeberUnsOpen(true)}
+          onCredits={() => setCreditsOpen(true)}
+          onImpressum={() => setImpressumOpen(true)}
+          onDatenschutz={() => setDatenschutzOpen(true)}
+        />
+
+        {viewedCase ? (
+          <>
+            <SharedCaseBanner
+              mandantEmail={viewedCase.user_email ?? 'Unbekannter Mandant'}
+              onExit={exitSharedCase}
+            />
+            <Prozessleiste current={current} completed={completed} onGoTo={goTo} />
+            <ErrorBoundary>
+              <Suspense fallback={<MilestoneSpinner />}>
+                {current === 1 && <MeilensteinDiagnose onComplete={() => {}} />}
+                {current === 2 && <MeilensteinExport   onComplete={() => {}} />}
+                {current === 3 && (
+                  <M3Analyse
+                    onLandingOpen={() => setLandingOpen(true)}
+                    onPdfExported={() => {}}
+                  />
+                )}
+                {current === 4 && <MeilensteinAnwalt  onBack={() => goTo(3)} onComplete={() => {}} />}
+                {current === 5 && <MeilensteinBriefing onBack={() => goTo(4)} onComplete={() => {}} />}
+              </Suspense>
+            </ErrorBoundary>
+          </>
+        ) : (
+          <AnwaltDashboard onOpenCase={openSharedCase} />
+        )}
+
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            {creditsOpen     && <CreditsOverlay     open onClose={() => setCreditsOpen(false)} />}
+            {impressumOpen   && <ImpressumOverlay   open onClose={() => setImpressumOpen(false)} />}
+            {datenschutzOpen && <DatenschutzOverlay open onClose={() => setDatenschutzOpen(false)} />}
+            {ueberUnsOpen    && <UeberUnsOverlay open onClose={() => setUeberUnsOpen(false)} />}
+            {authOpen        && <AuthOverlay auth={auth} onClose={() => setAuthOpen(false)} />}
+          </Suspense>
+        </ErrorBoundary>
+
+        <DevPanel auth={auth} />
+      </div>
+    )
+  }
+
+  // ── Standard Mandanten-View ───────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50">
       <Header
@@ -185,6 +270,13 @@ function App() {
         >
           Anwalt empfehlen →
         </button>
+        {/* ShareCaseButton — nur für eingeloggte Nicht-Anwälte mit Daten */}
+        {auth.user && !auth.isLawyer && importStep === 'done' && (
+          <>
+            <span className="text-amber-300">·</span>
+            <ShareCaseButton />
+          </>
+        )}
       </div>
 
       {/* ── Milestone-Inhalt ─────────────────────────────────────────────── */}
@@ -203,7 +295,7 @@ function App() {
         </Suspense>
       </ErrorBoundary>
 
-      {/* ── Overlays (lazy, nur laden wenn geöffnet) ─────────────────────── */}
+      {/* ── Overlays ─────────────────────────────────────────────────────── */}
       <ErrorBoundary>
         <Suspense fallback={null}>
           {landingOpen     && <LandingOverlay     open onClose={() => setLandingOpen(false)} />}

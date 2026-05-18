@@ -1,9 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { useAppStore } from '../store'
-import { saveCase, loadCase, type CloudState } from '../lib/caseSync'
+import { saveCase, loadCase, type CloudState, type CaseSummary } from '../lib/caseSync'
 
 export type SyncStatus = 'idle' | 'saving' | 'saved' | 'error'
+
+const MILESTONE_KEY = 'sp-milestones'
+
+function readMilestone(): number {
+  try {
+    const raw = localStorage.getItem(MILESTONE_KEY)
+    if (raw) return (JSON.parse(raw) as { current?: number }).current ?? 1
+  } catch {}
+  return 1
+}
 
 export function useCaseSync(user: User | null): SyncStatus {
   const [status, setStatus] = useState<SyncStatus>('idle')
@@ -12,6 +22,7 @@ export function useCaseSync(user: User | null): SyncStatus {
 
   const importStep        = useAppStore(s => s.importStep)
   const fileMetadataList  = useAppStore(s => s.fileMetadataList)
+  const days              = useAppStore(s => s.days)
   const columnMapping     = useAppStore(s => s.columnMapping)
   const inputIsUTC        = useAppStore(s => s.inputIsUTC)
   const inputUnit         = useAppStore(s => s.inputUnit)
@@ -48,11 +59,29 @@ export function useCaseSync(user: User | null): SyncStatus {
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(async () => {
       setStatus('saving')
+
       let diagnose: Record<string, unknown> | null = null
       try {
         const raw = localStorage.getItem('sp-diagnose-result')
         if (raw) diagnose = JSON.parse(raw)
       } catch {}
+
+      const dateRange = days.length >= 2
+        ? { from: days[0].date, to: days[days.length - 1].date }
+        : null
+
+      const summary: CaseSummary = {
+        milestone:  readMilestone(),
+        dayCount:   days.length,
+        dateRange,
+        diagnose: diagnose
+          ? {
+              modell:    (diagnose.modell as string | undefined),
+              defektArt: (diagnose.defektArt as string | undefined),
+              ampel:     (diagnose.ampel as string | undefined),
+            }
+          : null,
+      }
 
       const cloud: CloudState = {
         fileMetadataList: fileMetadataList.map(f => ({
@@ -68,9 +97,10 @@ export function useCaseSync(user: User | null): SyncStatus {
         costParams,
         costCapOverrides,
         diagnose,
+        summary,
       }
 
-      const id = await saveCase(cloud)
+      const id = await saveCase(cloud, user.email ?? undefined)
       setStatus(id ? 'saved' : 'error')
       if (id) setTimeout(() => setStatus('idle'), 3000)
     }, 2000)
