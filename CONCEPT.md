@@ -22,8 +22,8 @@ kontaktieren — ohne eigenes juristisches Vorwissen.
 | Rolle              | Anonym? | Eingeloggt? | Zahlend? | Anzahl bei Launch |
 |--------------------|---------|-------------|----------|-------------------|
 | SENEC-Geschädigter | ja      | nein        | nein     | ∞ (öffentlich)    |
-| Partner-Anwalt     | nein    | nein        | ja (B2B) | 9 (Stand 2026-05) |
-| Admin              | nein    | nein        | nein     | 1–2               |
+| Partner-Anwalt     | nein    | ja (Phase 2)| ja (B2B) | 9 (Stand 2026-05) |
+| Admin              | nein    | ja          | nein     | 1–2               |
 
 **Kernentscheidung:** Der Endkunde bezahlt nie. Monetarisierung ausschließlich
 über Partner-Kanzleien (B2B). Begründung: Endkunden sind skeptisch und ängstlich,
@@ -120,9 +120,10 @@ Modell 3 als Premium-Option sobald Win-Rate-Daten aus echten Fällen vorliegen.
 ## Out of Scope
 
 - Mobile App
-- Login / Nutzerkonto
+- ~~Login / Nutzerkonto~~ (implementiert 2026-05-18, OTP-Auth + Cloud-Sync)
 - Endkunden-Zahlung (bewusste Entscheidung, 2026-05-18)
 - Bayern-Kanzlei (noch nicht gefunden, Stand 2026-05-18)
+- Anwalt-Dashboard / Multi-User → **PRD-ANWALT.md** (Phase 2)
 
 ---
 
