@@ -63,7 +63,7 @@ function App() {
   const [datenschutzOpen, setDatenschutzOpen] = useState(false)
   const [ueberUnsOpen,           setUeberUnsOpen]           = useState(false)
   const [anwaltEmpfehlenOpen,    setAnwaltEmpfehlenOpen]    = useState(false)
-  const [adminOpen,              setAdminOpen]              = useState(() => window.location.hash === '#sp-admin')
+  const [adminOpen,              setAdminOpen]              = useState(false)
   const [authOpen,               setAuthOpen]               = useState(false)
 
   const trustStripItems = useContent<TrustStripItems>('trust_strip', TRUST_STRIP_DEFAULT)
@@ -157,6 +157,7 @@ function App() {
         auth={auth}
         syncStatus={syncStatus}
         onAuth={() => setAuthOpen(true)}
+        onAdmin={() => setAdminOpen(true)}
         onUeberUns={() => setUeberUnsOpen(true)}
         onCredits={() => setCreditsOpen(true)}
         onImpressum={() => setImpressumOpen(true)}
@@ -208,7 +209,7 @@ function App() {
           {creditsOpen     && <CreditsOverlay     open onClose={() => setCreditsOpen(false)} />}
           {impressumOpen   && <ImpressumOverlay   open onClose={() => setImpressumOpen(false)} />}
           {datenschutzOpen && <DatenschutzOverlay open onClose={() => setDatenschutzOpen(false)} />}
-          {adminOpen              && <AdminOverlay onClose={() => { setAdminOpen(false); window.location.hash = '' }} />}
+          {adminOpen              && <AdminOverlay onClose={() => setAdminOpen(false)} />}
           {ueberUnsOpen           && <UeberUnsOverlay open onClose={() => setUeberUnsOpen(false)} />}
           {anwaltEmpfehlenOpen    && <AnwaltEmpfehlenOverlay onClose={() => setAnwaltEmpfehlenOpen(false)} />}
           {authOpen               && <AuthOverlay auth={auth} onClose={() => setAuthOpen(false)} />}

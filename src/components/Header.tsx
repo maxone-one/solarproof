@@ -6,13 +6,14 @@ interface HeaderProps {
   auth: AuthState
   syncStatus: SyncStatus
   onAuth: () => void
+  onAdmin: () => void
   onCredits: () => void
   onImpressum: () => void
   onDatenschutz: () => void
   onUeberUns: () => void
 }
 
-export function Header({ auth, syncStatus, onAuth, onCredits, onImpressum, onDatenschutz, onUeberUns }: HeaderProps) {
+export function Header({ auth, syncStatus, onAuth, onAdmin, onCredits, onImpressum, onDatenschutz, onUeberUns }: HeaderProps) {
   const fileMetadataList = useAppStore((s) => s.fileMetadataList)
   const importStep = useAppStore((s) => s.importStep)
 
@@ -66,6 +67,14 @@ export function Header({ auth, syncStatus, onAuth, onCredits, onImpressum, onDat
         {!auth.loading && (
           auth.user ? (
             <div className="flex items-center gap-2">
+              {auth.isAdmin && (
+                <button
+                  onClick={onAdmin}
+                  className="text-xs font-medium text-amber-700 hover:text-amber-900 transition-colors border border-amber-200 bg-amber-50 rounded-lg px-3 py-1.5"
+                >
+                  Admin
+                </button>
+              )}
               <span className="text-xs text-gray-500 hidden sm:block truncate max-w-32" title={auth.user.email}>
                 {auth.user.email}
               </span>

@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 
 export interface AuthState {
   user: User | null
+  isAdmin: boolean
   loading: boolean
   signIn: (email: string) => Promise<void>
   verifyOtp: (email: string, token: string) => Promise<void>
@@ -41,5 +42,7 @@ export function useAuth(): AuthState {
     await supabase.auth.signOut()
   }
 
-  return { user, loading, signIn, verifyOtp, signOut }
+  const isAdmin = user?.app_metadata?.role === 'admin'
+
+  return { user, isAdmin, loading, signIn, verifyOtp, signOut }
 }
