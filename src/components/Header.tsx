@@ -1,8 +1,10 @@
 import { useAppStore } from '../store'
 import type { AuthState } from '../hooks/useAuth'
+import type { SyncStatus } from '../hooks/useCaseSync'
 
 interface HeaderProps {
   auth: AuthState
+  syncStatus: SyncStatus
   onAuth: () => void
   onCredits: () => void
   onImpressum: () => void
@@ -10,7 +12,7 @@ interface HeaderProps {
   onUeberUns: () => void
 }
 
-export function Header({ auth, onAuth, onCredits, onImpressum, onDatenschutz, onUeberUns }: HeaderProps) {
+export function Header({ auth, syncStatus, onAuth, onCredits, onImpressum, onDatenschutz, onUeberUns }: HeaderProps) {
   const fileMetadataList = useAppStore((s) => s.fileMetadataList)
   const importStep = useAppStore((s) => s.importStep)
 
@@ -41,6 +43,25 @@ export function Header({ auth, onAuth, onCredits, onImpressum, onDatenschutz, on
       </div>
 
       <div className="flex items-center gap-4">
+        {/* Cloud sync badge */}
+        {auth.user && syncStatus === 'saving' && (
+          <span className="text-xs text-gray-400 flex items-center gap-1">
+            <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            Speichern …
+          </span>
+        )}
+        {auth.user && syncStatus === 'saved' && (
+          <span className="text-xs text-green-600 flex items-center gap-1">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            In der Cloud gespeichert
+          </span>
+        )}
+
         {/* Auth button */}
         {!auth.loading && (
           auth.user ? (

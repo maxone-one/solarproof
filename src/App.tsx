@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react'
 import { useAuth } from './hooks/useAuth'
+import { useCaseSync } from './hooks/useCaseSync'
 import { Header } from './components/Header'
 import { Prozessleiste } from './components/Prozessleiste'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -42,6 +43,7 @@ function MilestoneSpinner() {
 
 function App() {
   const auth = useAuth()
+  const syncStatus = useCaseSync(auth.user)
 
   const rehydrate        = useAppStore((s) => s.rehydrate)
   const duplicateInfo    = useAppStore((s) => s.duplicateInfo)
@@ -153,6 +155,7 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       <Header
         auth={auth}
+        syncStatus={syncStatus}
         onAuth={() => setAuthOpen(true)}
         onUeberUns={() => setUeberUnsOpen(true)}
         onCredits={() => setCreditsOpen(true)}
