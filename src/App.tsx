@@ -5,6 +5,7 @@ import { Header } from './components/Header'
 import { Prozessleiste } from './components/Prozessleiste'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { DuplicateDialog } from './components/DuplicateDialog'
+import { DevPanel } from './components/DevPanel'
 import { useMilestones } from './hooks/useMilestones'
 import { useAppStore } from './store'
 import { useContent } from './hooks/useContent'
@@ -215,6 +216,8 @@ function App() {
           {authOpen               && <AuthOverlay auth={auth} onClose={() => setAuthOpen(false)} />}
         </Suspense>
       </ErrorBoundary>
+
+      <DevPanel auth={auth} />
 
       {duplicateInfo && (
         <DuplicateDialog
