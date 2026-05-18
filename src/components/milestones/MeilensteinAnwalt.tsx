@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { fetchLawyers, submitLawyer, plzToBundesland, type Lawyer } from '../../data/lawyers'
+import { fetchLawyers, plzToBundesland, type Lawyer } from '../../data/lawyers'
+import { AnwaltEmpfehlenForm } from '../AnwaltEmpfehlenForm'
 
 interface Props {
   onBack: () => void
@@ -12,30 +13,8 @@ const EXTERNAL_LINKS = [
 ]
 
 function AnwaltEmpfehlenCard() {
-  const [open, setOpen]             = useState(false)
-  const [name, setName]             = useState('')
-  const [kanzlei, setKanzlei]       = useState('')
-  const [plz, setPlz]               = useState('')
-  const [ort, setOrt]               = useState('')
-  const [website, setWebsite]       = useState('')
-  const [beschreibung, setBeschreibung] = useState('')
-  const [loading, setLoading]       = useState(false)
-  const [done, setDone]             = useState(false)
-  const [error, setError]           = useState('')
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    try {
-      await submitLawyer({ name, kanzlei, plz, ort, website: website || undefined, beschreibung: beschreibung || undefined })
-      setDone(true)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [open, setOpen] = useState(false)
+  const [done, setDone] = useState(false)
 
   if (done) {
     return (
@@ -58,10 +37,7 @@ function AnwaltEmpfehlenCard() {
   return (
     <div className={`rounded-2xl border-2 transition-colors overflow-hidden ${open ? 'border-blue-300 bg-blue-50' : 'border-dashed border-blue-200 bg-white hover:border-blue-300'}`}>
       {!open ? (
-        <button
-          onClick={() => setOpen(true)}
-          className="w-full p-5 flex items-center gap-4 text-left"
-        >
+        <button onClick={() => setOpen(true)} className="w-full p-5 flex items-center gap-4 text-left">
           <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
             <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -76,7 +52,7 @@ function AnwaltEmpfehlenCard() {
           </svg>
         </button>
       ) : (
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <div className="p-5 space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-blue-900">Anwalt empfehlen</p>
             <button type="button" onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600">
@@ -85,59 +61,8 @@ function AnwaltEmpfehlenCard() {
               </svg>
             </button>
           </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2">
-              <input
-                required value={name} onChange={e => setName(e.target.value)}
-                placeholder="Name des Anwalts *"
-                className="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
-              />
-            </div>
-            <div className="col-span-2">
-              <input
-                required value={kanzlei} onChange={e => setKanzlei(e.target.value)}
-                placeholder="Kanzleiname *"
-                className="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
-              />
-            </div>
-            <input
-              required value={plz} onChange={e => setPlz(e.target.value.replace(/\D/g, '').slice(0, 5))}
-              placeholder="PLZ *" inputMode="numeric" maxLength={5}
-              className="bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
-            />
-            <input
-              required value={ort} onChange={e => setOrt(e.target.value)}
-              placeholder="Ort *"
-              className="bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
-            />
-            <div className="col-span-2">
-              <input
-                value={website} onChange={e => setWebsite(e.target.value)}
-                placeholder="Website (optional)"
-                className="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
-              />
-            </div>
-            <div className="col-span-2">
-              <textarea
-                value={beschreibung} onChange={e => setBeschreibung(e.target.value)}
-                placeholder="Ihre Erfahrung mit dem Anwalt (optional) — hilft anderen Betroffenen"
-                rows={3}
-                className="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:border-blue-400 focus:outline-none resize-none"
-              />
-            </div>
-          </div>
-
-          {error && <p className="text-xs text-red-500">{error}</p>}
-
-          <button
-            type="submit" disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-sm py-3.5 rounded-xl transition-colors"
-          >
-            {loading ? 'Wird eingereicht …' : 'Anwalt empfehlen →'}
-          </button>
-          <p className="text-xs text-gray-400 text-center">Wir prüfen jeden Eintrag vor der Veröffentlichung.</p>
-        </form>
+          <AnwaltEmpfehlenForm onSuccess={() => setDone(true)} />
+        </div>
       )}
     </div>
   )

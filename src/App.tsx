@@ -22,8 +22,9 @@ const LandingOverlay       = lazy(() => import('./components/LandingOverlay').th
 const CreditsOverlay       = lazy(() => import('./components/CreditsOverlay').then(m => ({ default: m.CreditsOverlay })))
 const ImpressumOverlay     = lazy(() => import('./components/ImpressumOverlay').then(m => ({ default: m.ImpressumOverlay })))
 const DatenschutzOverlay   = lazy(() => import('./components/DatenschutzOverlay').then(m => ({ default: m.DatenschutzOverlay })))
-const AdminOverlay         = lazy(() => import('./components/AdminOverlay').then(m => ({ default: m.AdminOverlay })))
-const UeberUnsOverlay      = lazy(() => import('./components/UeberUnsOverlay').then(m => ({ default: m.UeberUnsOverlay })))
+const AdminOverlay              = lazy(() => import('./components/AdminOverlay').then(m => ({ default: m.AdminOverlay })))
+const UeberUnsOverlay           = lazy(() => import('./components/UeberUnsOverlay').then(m => ({ default: m.UeberUnsOverlay })))
+const AnwaltEmpfehlenOverlay    = lazy(() => import('./components/AnwaltEmpfehlenOverlay').then(m => ({ default: m.AnwaltEmpfehlenOverlay })))
 
 function MilestoneSpinner() {
   return (
@@ -52,8 +53,9 @@ function App() {
   const [creditsOpen,     setCreditsOpen]     = useState(false)
   const [impressumOpen,   setImpressumOpen]   = useState(false)
   const [datenschutzOpen, setDatenschutzOpen] = useState(false)
-  const [ueberUnsOpen,    setUeberUnsOpen]    = useState(false)
-  const [adminOpen,       setAdminOpen]       = useState(() => window.location.hash === '#sp-admin')
+  const [ueberUnsOpen,           setUeberUnsOpen]           = useState(false)
+  const [anwaltEmpfehlenOpen,    setAnwaltEmpfehlenOpen]    = useState(false)
+  const [adminOpen,              setAdminOpen]              = useState(() => window.location.hash === '#sp-admin')
 
   const { current, completed, goTo, complete } = useMilestones()
 
@@ -165,6 +167,13 @@ function App() {
         >
           Wer steckt dahinter? →
         </button>
+        <span className="text-amber-300">·</span>
+        <button
+          onClick={() => setAnwaltEmpfehlenOpen(true)}
+          className="font-semibold underline underline-offset-2 hover:text-amber-900 transition-colors"
+        >
+          Anwalt empfehlen →
+        </button>
       </div>
 
       {/* ── Milestone-Inhalt ─────────────────────────────────────────────── */}
@@ -190,8 +199,9 @@ function App() {
           {creditsOpen     && <CreditsOverlay     open onClose={() => setCreditsOpen(false)} />}
           {impressumOpen   && <ImpressumOverlay   open onClose={() => setImpressumOpen(false)} />}
           {datenschutzOpen && <DatenschutzOverlay open onClose={() => setDatenschutzOpen(false)} />}
-          {adminOpen       && <AdminOverlay onClose={() => { setAdminOpen(false); window.location.hash = '' }} />}
-          {ueberUnsOpen    && <UeberUnsOverlay open onClose={() => setUeberUnsOpen(false)} />}
+          {adminOpen              && <AdminOverlay onClose={() => { setAdminOpen(false); window.location.hash = '' }} />}
+          {ueberUnsOpen           && <UeberUnsOverlay open onClose={() => setUeberUnsOpen(false)} />}
+          {anwaltEmpfehlenOpen    && <AnwaltEmpfehlenOverlay onClose={() => setAnwaltEmpfehlenOpen(false)} />}
         </Suspense>
       </ErrorBoundary>
 
