@@ -164,17 +164,24 @@ function App() {
       simulationParams: s.simulationParams,
       costParams:       s.costParams,
       costCapOverrides: s.costCapOverrides,
-      // Metadata ohne CSV — nur für Anzeige
       fileMetadataList: s.fileMetadataList.map(f => ({
         ...f,
         importTimestamp: new Date(f.importTimestamp),
       })),
       importStep: 'done',
     })
+    // Diagnose des Mandanten in localStorage schreiben, damit M1 sie anzeigt
+    if (s.diagnose) {
+      localStorage.setItem('sp-diagnose-result', JSON.stringify(s.diagnose))
+    } else {
+      localStorage.removeItem('sp-diagnose-result')
+    }
     setViewedCase(row)
   }
 
   function exitSharedCase() {
+    // Diagnose aus localStorage löschen (Lawyer hat keine eigene Diagnose)
+    localStorage.removeItem('sp-diagnose-result')
     // Store zurücksetzen auf lokalen Zustand (rehydrate liest IndexedDB)
     useAppStore.getState().rehydrate()
     setViewedCase(null)
