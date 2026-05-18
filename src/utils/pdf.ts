@@ -1,3 +1,4 @@
+// HEALTH-EXEMPT: PDF-Report-Generator (jsPDF-Komposition, kein Business-Code)
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { DataGap, DayData, DaySimulation, FileMetadata, OverlapSummary, SimulationParams } from '../types'
