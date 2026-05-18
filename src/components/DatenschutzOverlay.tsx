@@ -110,9 +110,33 @@ export function DatenschutzOverlay({ open, onClose }: Props) {
           </p>
         </section>
 
+        {/* Vector Chat */}
+        <section>
+          <h2 className="text-base font-semibold text-gray-900 mb-3">5. KI-Chat (Vector)</h2>
+          <p>
+            SolarProof bindet einen KI-Assistenten („Vector") ein, der Fragen zur Nutzung des Tools,
+            zu CSV-Import, Simulation und rechtlichen Hintergründen beantwortet. Die Nutzung des
+            Chats ist vollständig freiwillig.
+          </p>
+          <p className="mt-3">
+            Wenn du den Chat öffnest und eine Nachricht sendest, wird der Inhalt dieser Nachricht
+            an unsere eigene KI-Infrastruktur (maxone, EU-Server, Hetzner Nürnberg) übertragen und
+            dort verarbeitet. Chat-Feedback (Daumen hoch/runter) wird in unserer Datenbank gespeichert.
+            Es werden keine personenbezogenen Daten erhoben — es gibt keine Registrierung, keinen Account.
+          </p>
+          <p className="mt-3 font-medium text-gray-800">
+            Wichtig: Geben Sie bitte keine mandantenbezogenen oder personenbezogenen Informationen
+            in den Chat ein. Der Chat ist nicht für vertrauliche Falldaten geeignet.
+          </p>
+          <p className="mt-3">
+            Rechtsgrundlage: berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO) an der Bereitstellung
+            einer hilfreichen Nutzerunterstützung. Der Chat ersetzt keine Rechtsberatung.
+          </p>
+        </section>
+
         {/* KI-Kulanzbewertung */}
         <section>
-          <h2 className="text-base font-semibold text-gray-900 mb-3">5. KI-Kulanzbewertung (optional)</h2>
+          <h2 className="text-base font-semibold text-gray-900 mb-3">7. KI-Kulanzbewertung (optional)</h2>
           <p>
             In Schritt 1 kannst du freiwillig den Wortlaut deines SENEC-Kulanzangebots eingeben,
             um eine KI-gestützte Einschätzung zu erhalten. Dieses Textfeld ist <strong>vollständig optional</strong> —
@@ -132,7 +156,7 @@ export function DatenschutzOverlay({ open, onClose }: Props) {
 
         {/* Anwaltsliste und Einreichung */}
         <section>
-          <h2 className="text-base font-semibold text-gray-900 mb-3">6. Anwaltsliste und Anwalt-Einreichung</h2>
+          <h2 className="text-base font-semibold text-gray-900 mb-3">8. Anwaltsliste und Anwalt-Einreichung</h2>
           <p>
             SolarProof ruft eine öffentliche Liste von Anwälten mit SENEC-Erfahrung von unserem
             Server ab (maxone, EU-Server). Diese Daten sind öffentlich zugänglich und enthalten
@@ -162,7 +186,7 @@ export function DatenschutzOverlay({ open, onClose }: Props) {
 
         {/* localStorage */}
         <section>
-          <h2 className="text-base font-semibold text-gray-900 mb-3">7. Lokale Speicherung (localStorage)</h2>
+          <h2 className="text-base font-semibold text-gray-900 mb-3">9. Lokale Speicherung (localStorage)</h2>
           <p>
             SolarProof speichert Fortschritt und Analyseergebnisse ausschließlich im localStorage
             deines Browsers — lokal auf deinem Gerät, nicht auf einem Server. Diese Daten verlassen
@@ -176,7 +200,7 @@ export function DatenschutzOverlay({ open, onClose }: Props) {
 
         {/* Rechte */}
         <section>
-          <h2 className="text-base font-semibold text-gray-900 mb-3">8. Deine Rechte (Art. 15–21 DSGVO)</h2>
+          <h2 className="text-base font-semibold text-gray-900 mb-3">10. Deine Rechte (Art. 15–21 DSGVO)</h2>
           <p>
             Da wir keine personenbezogenen Daten erheben, gibt es de facto nichts zu beauskunften,
             zu korrigieren oder zu löschen. Solltest du dennoch Fragen zum Datenschutz haben,
