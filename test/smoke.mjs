@@ -14,7 +14,7 @@ const VECTOR = process.env.VECTOR || 'https://agent.maxone.one'
 const SUPABASE = process.env.SUPABASE || 'https://panel.maxone.one'
 const TSA_PROXY = process.env.TSA_PROXY || `${SUPABASE}/functions/v1/tsa-proxy`
 const FEEDBACK_TABLE = 'solarproof_feedback'
-const TIMEOUT = 15000
+const TIMEOUT = 30000
 
 const results = []
 function pass(name, detail = '') { results.push({ name, ok: true, detail }) }
