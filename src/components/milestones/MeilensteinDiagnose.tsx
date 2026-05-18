@@ -540,7 +540,7 @@ export function MeilensteinDiagnose({ onComplete }: Props) {
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-3 text-sm text-gray-800 placeholder-gray-400 focus:border-blue-400 focus:outline-none resize-none"
           />
           <button
-            onClick={analyzeWithVector}
+            onClick={() => { analyzeWithVector() }}
             disabled={aiLoading}
             className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
           >

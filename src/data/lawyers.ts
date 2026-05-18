@@ -3,6 +3,7 @@ export interface Lawyer {
   name: string
   kanzlei: string
   email?: string
+  phone?: string
   plz: string
   ort: string
   bundesland: string
