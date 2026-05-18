@@ -14,6 +14,7 @@ export interface Lawyer {
   website?: string
   beschreibung?: string
   listing_typ: 'kostenlos' | 'basis' | 'premium'
+  status?: 'active' | 'pending'
 }
 
 const PANEL_URL = 'https://panel.maxone.one'
@@ -42,6 +43,39 @@ export async function addLawyer(lawyer: Omit<Lawyer, 'id'>, adminKey: string): P
     const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
     throw new Error(err.error ?? `HTTP ${res.status}`)
   }
+}
+
+function adminHeaders(adminKey: string) {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${adminKey}`,
+    'apikey': adminKey,
+  }
+}
+
+export async function fetchPendingLawyers(adminKey: string): Promise<Lawyer[]> {
+  const res = await fetch(`${PANEL_URL}/rest/v1/lawyers?status=eq.pending&order=created_at.asc`, {
+    headers: { ...adminHeaders(adminKey), 'Accept': 'application/json' },
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+export async function approveLawyer(id: string, adminKey: string): Promise<void> {
+  const res = await fetch(`${PANEL_URL}/rest/v1/lawyers?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { ...adminHeaders(adminKey), 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ status: 'active' }),
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+}
+
+export async function rejectLawyer(id: string, adminKey: string): Promise<void> {
+  const res = await fetch(`${PANEL_URL}/rest/v1/lawyers?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: adminHeaders(adminKey),
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
 }
 
 export interface LawyerSubmission {
