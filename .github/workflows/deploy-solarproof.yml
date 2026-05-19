@@ -1,25 +1,52 @@
 name: Deploy SolarProof to voltfair-cli
 
+# Build auf maxone-staging (nie auf voltfair-cli), Transfer via SSH.
+
 on:
   push:
     branches: [main]
 
 jobs:
   build:
-    runs-on: [self-hosted, voltfair-cli]
+    runs-on: [self-hosted, maxone-staging]
     steps:
       - uses: actions/checkout@v4
 
       - name: Build Docker image
         run: docker build -t solarproof-app:latest .
 
-      - name: Deploy
+      - name: Save image as tarball
+        run: docker save solarproof-app:latest | gzip > solarproof-app.tar.gz
+
+      - name: Setup SSH
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
         run: |
-          cp docker-compose.yml /opt/solarproof/docker-compose.yml
-          cd /opt/solarproof && docker compose up -d --force-recreate && docker image prune -f
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Transfer and deploy
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          cat solarproof-app.tar.gz | ssh -i ~/.ssh/deploy_key "$SERVER_USER@$SERVER_HOST" "gunzip | docker load"
+          scp -i ~/.ssh/deploy_key docker-compose.yml "$SERVER_USER@$SERVER_HOST:/opt/solarproof/docker-compose.yml"
+          ssh -i ~/.ssh/deploy_key "$SERVER_USER@$SERVER_HOST" \
+            "cd /opt/solarproof && docker compose up -d --force-recreate && docker image prune -f"
 
       - name: Health check
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           sleep 5
-          docker inspect --format='{{.State.Health.Status}}' solarproof-app 2>/dev/null \
-            || docker ps --filter name=solarproof-app --format '{{.Status}}'
+          ssh -i ~/.ssh/deploy_key "$SERVER_USER@$SERVER_HOST" \
+            "docker inspect --format='{{.State.Health.Status}}' solarproof-app 2>/dev/null || docker ps --filter name=solarproof-app --format '{{.Status}}'"
+
+      - name: Cleanup
+        if: always()
+        run: rm -f solarproof-app.tar.gz ~/.ssh/deploy_key
